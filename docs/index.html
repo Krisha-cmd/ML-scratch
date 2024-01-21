@@ -1,66 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, maximum-scale=0.9, user-scalable=0">
     <title>Data Creator</title>
-    <link href="style.css" rel="stylesheet"/>
+    <link href="style.css" rel="stylesheet" />
 </head>
+
 <body>
     <div id="content">
         <h1>Data Creator</h1>
         <div>
-            <input id="student" type="text" placeholder="Type your name"/>
+            <input id="student" type="text" placeholder="Type your name" />
             <span id="instructions"></span>
             <button id="advanceBtn" onclick="start();">Start</button>
         </div>
-        <br/>
-        <div id="sketchPadContainer"
-        style="visibility: hidden;"></div>
+        <br />
+        <div id="sketchPadContainer" style="visibility: hidden;"></div>
         <script src="js/draw.js"></script>
         <script src="js/sketchPad.js"></script>
         <script>
-            let index=0;
-            const labels=["car", "fish","house","tree","guitar","pencil","clock","smiley"]
-            const data={
-                student:null,
-                session:new Date().getTime(),
-                drawings:{}
+            let index = 0;
+            const labels = ["smiley", "fish", "clock", "house"]
+            const data = {
+                student: null,
+                session: new Date().getTime(),
+                drawings: {}
             };
 
-            const sketchPad=
-            new SketchPad(sketchPadContainer)
+            const sketchPad =
+                new SketchPad(sketchPadContainer)
 
-            function start(){
-                if(student.value==""){
+            function start() {
+                if (student.value == "") {
                     alert("Please type your name first!");
                     return;
                 }
-                data.student=student.value;
-                student.style.display="none";
-                sketchPadContainer.style.visibility="visible"
-                const label=labels[index];
-                instructions.innerHTML="Please draw a"+label;
-                advanceBtn.innerHTML="NEXT"
-                advanceBtn.onclick=next;
+                data.student = student.value;
+                student.style.display = "none";
+                sketchPadContainer.style.visibility = "visible"
+                const label = labels[index];
+                instructions.innerHTML = "Please draw a " + label;
+                advanceBtn.innerHTML = "NEXT"
+                advanceBtn.onclick = next;
 
             }
 
-            function next(){
-                if(sketchPad.paths.length==0){
+            function next() {
+                if (sketchPad.paths.length == 0) {
                     alert("Draw something first!");
                     return;
                 }
-                const label=labels[index]
-                data.drawings[label]=sketchPad.paths;
+                const label = labels[index]
+                data.drawings[label] = sketchPad.paths;
                 sketchPad.reset()
-
-                index++;
-                const nextlabel=labels[index];
-                instructions.innerHTML="Please draw a "+nextlabel;
+                if (index < labels.length-1 ) {
+                    index++;
+                    const nextlabel = labels[index];
+                    instructions.innerHTML = "Please draw a " + nextlabel;
+                }
+                else {
+                    instructions.innerHTML = "Please Save the file " + nextlabel;
+                    sketchPadContainer.style.visibility = "hidden";
+                    advanceBtn.innerHTML = "SAVE";
+                    advanceBtn.onclick = save;
+                }
             }
+
+            function save() {
+                advanceBtn.style.display = 'none';
+                instructions.innerHTML = "Take your downloaded file and place it alongside the others in the dataset"
+
+                const element = document.createElement('a');
+                element.setAttribute('href',
+                    'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data)))
+                const fileName = data.session + ".json";
+                element.setAttribute('download', fileName);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click()
+                document.body.removeChild(element);
+            }
+
+
         </script>
         </script>
     </div>
 </body>
+
 </html>
